@@ -1,0 +1,185 @@
+import {
+  ChevronRight,
+  CloudOff,
+  Download,
+  LogOut,
+  Mail,
+  MoonStar,
+  ShieldCheck,
+  Wallet,
+} from 'lucide-react'
+import { useState } from 'react'
+
+import { MobileShell } from '@/components/common/mobile-shell'
+import { ScreenHeader } from '@/components/common/screen-header'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import { useSettingsQuery } from '@/lib/queries/use-app-queries'
+
+function SettingsRow({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: typeof Wallet
+  label: string
+  value: string
+}) {
+  return (
+    <button className="flex w-full items-center justify-between gap-3 py-3 text-left" type="button">
+      <div className="flex items-center gap-3">
+        <div className="rounded-2xl bg-secondary p-2 text-secondary-foreground">
+          <Icon className="size-4" />
+        </div>
+        <span className="text-sm text-foreground">{label}</span>
+      </div>
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <span>{value}</span>
+        <ChevronRight className="size-4" />
+      </div>
+    </button>
+  )
+}
+
+export function SettingsPage() {
+  const { data } = useSettingsQuery()
+  const [isSignedIn, setIsSignedIn] = useState(false)
+
+  if (!data) {
+    return null
+  }
+
+  const accountName = isSignedIn ? 'Sebas via Google' : data.userName
+  const accountEmail = isSignedIn ? 'sebas@gmail.com' : 'Not signed in'
+
+  return (
+    <MobileShell>
+      <ScreenHeader title="Settings" />
+
+      <div className="space-y-5">
+        <Card className="border-0 bg-[linear-gradient(160deg,#fff7d3,#fffef8)] shadow-[0_16px_32px_rgba(245,181,0,0.16)]">
+          <CardContent className="space-y-5 p-5">
+            <div className="flex items-center gap-4">
+              <Avatar className="size-16 border border-white/80">
+                <AvatarFallback className="bg-secondary text-lg font-semibold text-secondary-foreground">
+                  {accountName.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0 space-y-2">
+                <div className="space-y-1">
+                  <p className="text-xs font-medium uppercase tracking-[0.18em] text-[var(--color-banana-900)]/60">
+                    Account
+                  </p>
+                  <p className="truncate text-2xl font-semibold tracking-tight text-[var(--color-banana-950)]">
+                    {accountName}
+                  </p>
+                </div>
+                <p className="truncate text-sm text-muted-foreground">{accountEmail}</p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge className="rounded-full bg-white/80 px-3 py-1 text-[11px] text-[var(--color-banana-900)]">
+                {isSignedIn ? 'Signed in' : 'Local mode'}
+              </Badge>
+              <Badge className="rounded-full bg-white/80 px-3 py-1 text-[11px] text-[var(--color-banana-900)]">
+                Offline first
+              </Badge>
+            </div>
+
+            <div className="rounded-[24px] bg-white/75 px-4 py-4 text-sm leading-6 text-muted-foreground">
+              {isSignedIn
+                ? 'Your account is connected for a simpler sign-in experience. Local data still stays first in this MVP.'
+                : 'You are currently using the app in local mode. Sign in when you want a linked account later.'}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 bg-card/90 shadow-[0_12px_30px_rgba(63,52,25,0.08)]">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-base">Account</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-[24px] bg-secondary/35 px-4 py-4">
+              <div className="flex items-center gap-3">
+                <div className="rounded-2xl bg-white/80 p-2 text-foreground">
+                  <Mail className="size-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-foreground">Google sign in</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Simple account link for this MVP.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-3">
+                {!isSignedIn ? (
+                  <Button
+                    className="h-12 rounded-2xl"
+                    onClick={() => setIsSignedIn(true)}
+                    type="button"
+                  >
+                    Sign in with Google
+                  </Button>
+                ) : (
+                  <Button
+                    className="h-12 rounded-2xl"
+                    variant="secondary"
+                    onClick={() => setIsSignedIn(false)}
+                    type="button"
+                  >
+                    Connected to Google
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-[24px] bg-white/70 px-4 py-4 text-sm leading-6 text-muted-foreground">
+              This sign-in is UI-functional for now: you can toggle signed-in state and logout from this page.
+            </div>
+
+            {isSignedIn ? (
+              <Button
+                className="h-12 w-full rounded-2xl text-destructive hover:text-destructive"
+                variant="secondary"
+                onClick={() => setIsSignedIn(false)}
+                type="button"
+              >
+                <LogOut className="size-4" />
+                Logout
+              </Button>
+            ) : null}
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 bg-card/90 shadow-[0_12px_30px_rgba(63,52,25,0.08)]">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-base">Preferences</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SettingsRow icon={Wallet} label="Currency" value={data.currency} />
+            <Separator />
+            <SettingsRow icon={MoonStar} label="Theme" value="Banana" />
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 bg-card/90 shadow-[0_12px_30px_rgba(63,52,25,0.08)]">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-base">Data & safety</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SettingsRow icon={Download} label="Export local data" value="Ready" />
+            <Separator />
+            <SettingsRow icon={CloudOff} label="Sync status" value="Offline only" />
+            <Separator />
+            <SettingsRow icon={ShieldCheck} label="Session security" value={isSignedIn ? 'Google linked' : 'Local only'} />
+          </CardContent>
+        </Card>
+      </div>
+    </MobileShell>
+  )
+}
