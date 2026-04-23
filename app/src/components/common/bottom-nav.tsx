@@ -1,7 +1,7 @@
 import { Home, Plus, ReceiptText, Settings, Users } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 
-import { useQuickActions } from '@/app/providers/quick-action-provider'
+import { useQuickActions } from '@/app/providers/quick-action-context'
 import { cn } from '@/lib/utils'
 
 const leftNavItems = [
@@ -19,7 +19,7 @@ export function BottomNav() {
   const { openActionSheet } = useQuickActions()
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 mx-auto max-w-3xl px-4 pb-4">
+    <nav className="mx-auto w-full max-w-3xl">
       <div className="relative">
         <div className="relative rounded-[32px] border border-white/60 bg-card/95 px-2 pb-2 pt-2 shadow-[0_16px_36px_rgba(54,43,14,0.12)] backdrop-blur">
           <div className="grid grid-cols-[1fr_auto_1fr] items-center">

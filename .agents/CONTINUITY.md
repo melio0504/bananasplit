@@ -11,24 +11,31 @@
 - 2026-04-21 [TOOL] `.agents/AGENTS.md` now points continuity operations to `.agents/CONTINUITY.md`.
 
 ## Done (recent)
-- 2026-04-21 [CODE] Scaffolded `app/` with Vite, React, TypeScript, Tailwind v4, TanStack Query, React Router, and `shadcn/ui`.
-- 2026-04-21 [CODE] Implemented mobile-first MVP wireframe routes for onboarding, dashboard, group details, expense details, settings, and not-found.
-- 2026-04-21 [CODE] Added BananaSplit yellow theme tokens, shared mobile shell, bottom navigation, placeholder logo placement, and mock local-query data flow.
-- 2026-04-21 [TOOL] `npm run lint` passed in `app/`.
-- 2026-04-21 [TOOL] `npm run build` passed in `app/`.
-- 2026-04-21 [CODE] Normalized `.agents` rules and continuity docs from old-project state to `bananasplit`-specific guidance.
+- 2026-04-23 [CODE] Reworked group edit/delete UX to match the hardened expense flow: group edits now use a real form with dirty-state gating and inline mutation errors, and group deletion now requires typing the group name plus surfaces mutation failures inline.
+- 2026-04-23 [CODE] Fixed a Dexie schema bug blocking expense edits: `activity.relatedId` is now indexed in DB version 6, matching the expense update/delete queries that look up activity rows by related entity id.
+- 2026-04-23 [CODE] Rebuilt the expense details edit drawer into a dedicated form component with explicit submit handling, dirty-state gating, and inline mutation error display so failed expense edits are no longer silent.
+- 2026-04-23 [CODE] Fixed expense details edit persistence: the details page now remounts on saved expense field changes so the drawer and detail view refresh from latest query data, and expense updates now validate current payer/participant membership before rewriting shares.
+- 2026-04-22 [CODE] Added optional multi-budget support in `app/`: Dexie schema now has `budgets`, expenses can link an optional `budgetId`, group queries return budget summaries, and expense/group UI now exposes budget selection and management.
+- 2026-04-22 [CODE] Implemented real group edit/delete flows: added `/groups/:groupId/edit`, wired group options menu actions, and soft-delete cascades now cover group budgets, expenses, memberships, recurring expenses, settlements, and timeline entries.
+- 2026-04-22 [CODE] Fixed stale expense edit/delete behavior by returning `groupId` from expense mutations and invalidating both `['expense', expenseId]` and `['group', groupId]` queries after updates/deletes.
+- 2026-04-22 [TOOL] `npm run lint` passed in `app/` after the budget and CRUD feature pass.
+- 2026-04-22 [TOOL] `npm run build` passed in `app/` after the budget and CRUD feature pass; Vite still warns that the main JS chunk exceeds 500 kB.
+- 2026-04-22 [CODE] Earlier same-day baseline: `app/src` was refactored for AGENTS compliance, kept under 300 LOC per code file, and session hooks were updated to preload `.agents/AGENTS.md` plus `.agents/CONTINUITY.md`.
+- 2026-04-21 [CODE] Earlier baseline: scaffolded the mobile-first React/Vite/TanStack Query app structure and MVP route set under `app/`.
 
 ## Decisions
 - 2026-04-21 [CODE] D001 ACTIVE: keep one repository with separate `app/`, `api/`, and `landing/` projects instead of shared-package monorepo.
 - 2026-04-21 [CODE] D002 ACTIVE: build `app/` offline-first with local persistence as source of truth; backend sync/auth later.
 - 2026-04-21 [CODE] D003 ACTIVE: frontend stack direction is React + Vite + TypeScript + Tailwind + `shadcn/ui` + TanStack Query.
 - 2026-04-21 [CODE] D004 ACTIVE: use mock repository/query layer now so UI routes are ready before real local database is selected.
+- 2026-04-22 [CODE] D005 ACTIVE: rely on repo-local Codex `SessionStart` hooks to preload `.agents/AGENTS.md` and `.agents/CONTINUITY.md` for new sessions.
 
 ## Now
-- 2026-04-21 [USER] User asked to start coding the `app/` and implement mobile-first wireframe screens.
+- 2026-04-23 [USER] User asked to re-check expense edit persistence because saving from expense details still appeared not to change the record.
 
 ## Next
-- 2026-04-21 [ASSUMPTION] Next likely step is choosing the real offline local database and replacing mock repository data behind the same query/repository boundaries.
+- 2026-04-23 [USER] TODO: verify and repair group edit/delete behavior end-to-end.
+- 2026-04-23 [ASSUMPTION] Next likely step is runtime hardening of destructive flows: add visible error surfacing for budget/group mutations and consider code-splitting to reduce the large JS bundle warning.
 
 ## Open Questions
 - 2026-04-21 [UNCONFIRMED] Exact local database choice for offline-first app still not locked.
@@ -37,15 +44,11 @@
 ## Working Set
 - `.agents/AGENTS.md`
 - `.agents/CONTINUITY.md`
-- `app/package.json`
-- `app/src/index.css`
-- `app/src/App.tsx`
 - `app/src/app/router/index.tsx`
-- `app/src/components/common/*`
-- `app/src/features/dashboard/*`
+- `app/src/components/budget/*`
+- `app/src/features/quick-actions/components/quick-action-sheet*`
 - `app/src/features/groups/*`
 - `app/src/features/expenses/*`
-- `app/src/features/onboarding/*`
-- `app/src/features/settings/*`
-- `app/src/lib/data/mock-data.ts`
+- `app/src/lib/db/app-db.ts`
+- `app/src/lib/queries/use-app-mutations.ts`
 - `app/src/lib/repositories/mock-app-repository.ts`
