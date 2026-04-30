@@ -115,6 +115,7 @@ async function normalizeLegacyUserName(existingSettings: AppSettingsRecord) {
   await appDb.transaction('rw', [appDb.members, appDb.settings], async () => {
     await appDb.settings.put({
       ...existingSettings,
+      accountAvatarUrl: existingSettings.accountAvatarUrl ?? null,
       updatedAt: nextUpdatedAt,
       userName: 'Guest',
     })
@@ -130,6 +131,7 @@ async function normalizeLegacyUserName(existingSettings: AppSettingsRecord) {
 
   return {
     ...existingSettings,
+    accountAvatarUrl: existingSettings.accountAvatarUrl ?? null,
     updatedAt: nextUpdatedAt,
     userName: 'Guest',
   }
@@ -143,7 +145,10 @@ export async function ensureAppInitialized() {
       return normalizeLegacyUserName(existingSettings)
     }
 
-    return existingSettings
+    return {
+      ...existingSettings,
+      accountAvatarUrl: existingSettings.accountAvatarUrl ?? null,
+    }
   }
 
   const now = Date.now()
@@ -159,6 +164,7 @@ export async function ensureAppInitialized() {
     updatedAt: now,
   }
   const settings: AppSettingsRecord = {
+    accountAvatarUrl: null,
     accountEmail: null,
     authProvider: 'local',
     currency: 'PHP',

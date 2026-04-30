@@ -1,7 +1,9 @@
 import { ChevronRight, type LucideIcon } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 type SettingsRowProps = {
   icon: LucideIcon
+  iconClassName?: string
   label: string
   onClick?: () => void
   showChevron?: boolean
@@ -10,6 +12,7 @@ type SettingsRowProps = {
 
 export function SettingsRow({
   icon: Icon,
+  iconClassName,
   label,
   onClick,
   showChevron = true,
@@ -22,7 +25,7 @@ export function SettingsRow({
       type="button"
     >
       <div className="flex items-center gap-3">
-        <div className="rounded-2xl bg-secondary p-2 text-secondary-foreground">
+        <div className={cn('rounded-2xl bg-secondary p-2 text-secondary-foreground', iconClassName)}>
           <Icon className="size-4" />
         </div>
         <span className="text-sm text-foreground sm:text-[15px]">{label}</span>

@@ -4,6 +4,7 @@ import {
   type QueryClientConfig,
 } from '@tanstack/react-query'
 import { type PropsWithChildren, useState } from 'react'
+import { SyncWatcher } from '@/lib/sync/sync-watcher'
 
 const queryClientConfig: QueryClientConfig = {
   defaultOptions: {
@@ -21,6 +22,9 @@ export function QueryProvider({ children }: PropsWithChildren) {
   )
 
   return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <SyncWatcher />
+      {children}
+    </QueryClientProvider>
   )
 }

@@ -78,9 +78,10 @@ export function QuickActionSheet({
   const amountCents = parseAmountToCents(amountInput)
   const hasValidAmount = amountCents > 0
   const isGroupLocked = Boolean(selectedGroupId)
-  const effectiveGroupId = isGroupLocked ? (selectedGroupId ?? '') : currentGroupId
-  const activeGroup = useGroupQuery(effectiveGroupId).data
   const selectableGroups = selectableGroupsQuery.data ?? []
+  const fallbackGroupId = selectableGroups[0]?.id ?? ''
+  const effectiveGroupId = isGroupLocked ? (selectedGroupId ?? '') : (currentGroupId || fallbackGroupId)
+  const activeGroup = useGroupQuery(effectiveGroupId).data
   const budgets = activeGroup?.budgets ?? []
   const members = activeGroup?.memberEntries
   const memberEntries = useMemo(() => members ?? [], [members])

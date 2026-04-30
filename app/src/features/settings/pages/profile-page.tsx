@@ -4,7 +4,7 @@ import { Mail, PencilLine, ShieldCheck } from 'lucide-react'
 
 import { MobileShell } from '@/components/common/mobile-shell'
 import { ScreenHeader } from '@/components/common/screen-header'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -15,6 +15,7 @@ import {
   useUpdateAuthStateMutation,
   useUpdateProfileMutation,
 } from '@/lib/queries/use-app-queries'
+import { clearApiToken } from '@/lib/auth/google-auth'
 
 export function ProfilePage() {
   const { data } = useSettingsQuery()
@@ -63,6 +64,9 @@ function ProfilePageContent({
           <CardContent className="space-y-5 p-5">
             <div className="flex items-center gap-4">
               <Avatar className="size-16 border border-white/80">
+                {data.accountAvatarUrl ? (
+                  <AvatarImage alt="" referrerPolicy="no-referrer" src={data.accountAvatarUrl} />
+                ) : null}
                 <AvatarFallback className="bg-secondary text-lg font-semibold text-secondary-foreground">
                   {initials || 'Y'}
                 </AvatarFallback>
@@ -107,7 +111,7 @@ function ProfilePageContent({
                   <div className="min-w-0 flex-1">
                     <p className="text-[15px] font-medium text-foreground sm:text-base">Google manages this profile</p>
                     <p className="mt-1 text-sm leading-6 text-muted-foreground sm:text-[15px]">
-                      Name and email come from the connected account for this MVP.
+                      Your local display name is retained. Google provides account email and profile image.
                     </p>
                   </div>
                 </div>
@@ -128,13 +132,14 @@ function ProfilePageContent({
               <Button
                 className="h-12 w-full rounded-2xl text-destructive hover:text-destructive"
                 disabled={updateAuthStateMutation.isPending}
-                onClick={() =>
+                onClick={() => {
+                  clearApiToken()
                   updateAuthStateMutation.mutate({
                     accountEmail: null,
                     authProvider: 'local',
                     isSignedIn: false,
                   })
-                }
+                }}
                 type="button"
                 variant="secondary"
               >

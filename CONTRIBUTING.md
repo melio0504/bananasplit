@@ -17,27 +17,113 @@ cd app
 npm install
 ```
 
-3. Start the development server:
+3. Create local environment files when working on Google auth, sync, or the Worker API.
+
+`app/.env.local` is used by Vite/browser code:
+
+```bash
+VITE_GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
+```
+
+`app/.dev.vars` is used by Wrangler/Worker code:
+
+```bash
+GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your_google_client_secret_if_needed
+```
+
+The current Google ID-token flow uses `GOOGLE_CLIENT_ID`. The client secret is not used yet.
+
+4. Apply local D1 migrations when working with the Worker API:
+
+```bash
+npm run db:migrate:local
+```
+
+5. Start the frontend-only development server:
 
 ```bash
 npm run dev
 ```
+
+Open:
+
+```text
+http://localhost:5173
+```
+
+For auth, sync, or any `/api` work, run both servers in separate terminals:
+
+```bash
+npm run cf:dev
+```
+
+```bash
+npm run dev
+```
+
+Wrangler serves the Worker API at `http://localhost:8787`. Vite serves the app at `http://localhost:5173` and proxies `/api` requests to Wrangler.
+
+### Google OAuth Local Setup
+
+In Google Cloud Console, use an OAuth client of type **Web application**.
+
+Authorized JavaScript origins should include:
+
+```text
+http://localhost:5173
+http://127.0.0.1:5173
+http://localhost:8787
+http://127.0.0.1:8787
+```
+
+If Google login shows `Error 401: invalid_client`, check that `VITE_GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_ID` are both set to the same valid Web client ID, then restart Vite and Wrangler.
 
 ## Useful Commands
 
 Run these from the `app/` directory:
 
 - `npm run dev` - Start Vite dev server
+- `npm run cf:dev` - Start the Cloudflare Worker locally with Wrangler
 - `npm run lint` - Run ESLint
 - `npm run build` - Type-check and build production bundle
 - `npm run preview` - Preview production build
+- `npm run db:migrate:local` - Apply D1 migrations to the local Wrangler database
+- `npm run db:migrate:remote` - Apply D1 migrations to the remote D1 database
+- `npx wrangler deploy --dry-run` - Validate the Worker bundle without deploying
 
 Before opening a PR, run:
 
 ```bash
 npm run lint
 npm run build
+npx wrangler deploy --dry-run
 ```
+
+If your PR changes D1 schema or Worker sync/auth behavior, also run:
+
+```bash
+npm run db:migrate:local
+npx wrangler d1 execute app-db --local --command "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;"
+```
+
+## Worker, D1, and Local Files
+
+- Worker source lives in `app/worker/`
+- Worker API routes live in `app/worker/api/`
+- D1 migrations live in `app/migrations/`
+- Vite proxies `/api` to `http://localhost:8787`
+- Local app data is still stored offline-first in IndexedDB through Dexie
+- Sync pushes local Dexie `syncOutbox` rows to D1 when signed in and online
+
+Do not commit local/generated files:
+
+- `app/.wrangler/`
+- `app/dist/`
+- `app/.env.local`
+- `app/.dev.vars`
+
+Use example values in docs instead of committing real secrets or Google client credentials.
 
 ## Branch Naming (Conventional)
 

@@ -3,16 +3,29 @@ import { buildOutboxRecord, buildSystemActivity, ensureAppInitialized, getSettin
 import { updateGroupRecord } from '@/lib/repositories/mock-app-repository/balances'
 
 export async function updateAuthState({
+  accountAvatarUrl,
   accountEmail,
   authProvider,
   isSignedIn,
+  userName,
 }: {
+  accountAvatarUrl?: string | null
   accountEmail: string | null
   authProvider: AuthProvider
   isSignedIn: boolean
+  userName?: string
 }) {
   const settings = await getSettingsRecord()
-  const nextSettings = { ...settings, accountEmail, authProvider, isSignedIn, updatedAt: Date.now() }
+  const nextUserName = userName?.trim()
+  const nextSettings = {
+    ...settings,
+    accountAvatarUrl: isSignedIn ? (accountAvatarUrl ?? null) : null,
+    accountEmail: isSignedIn ? accountEmail : null,
+    authProvider: isSignedIn ? authProvider : 'local',
+    isSignedIn,
+    updatedAt: Date.now(),
+    userName: nextUserName ? nextUserName : settings.userName,
+  }
 
   await appDb.transaction('rw', [appDb.settings, appDb.syncOutbox], async () => {
     await appDb.settings.put(nextSettings)

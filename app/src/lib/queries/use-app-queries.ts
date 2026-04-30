@@ -12,6 +12,7 @@ import {
   getSettingsData,
   searchApp,
 } from '@/lib/repositories/mock-app-repository'
+import { getPendingSyncCount } from '@/lib/sync/sync-client'
 
 export { useAddGroupMemberMutation } from '@/lib/queries/use-app-mutations'
 export { useCreateBudgetMutation } from '@/lib/queries/use-app-mutations'
@@ -109,5 +110,12 @@ export function useSettingsQuery() {
   return useQuery({
     queryKey: ['settings'],
     queryFn: getSettingsData,
+  })
+}
+
+export function usePendingSyncCountQuery() {
+  return useQuery({
+    queryKey: ['pending-sync-count'],
+    queryFn: getPendingSyncCount,
   })
 }

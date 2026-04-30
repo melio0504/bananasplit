@@ -116,6 +116,7 @@ export type RecurringExpenseRecord = {
 }
 
 export type AppSettingsRecord = {
+  accountAvatarUrl: string | null
   accountEmail: string | null
   authProvider: AuthProvider
   currency: string
@@ -138,6 +139,8 @@ export type SyncOutboxRecord = {
   | 'member'
   | 'groupMember'
   | 'expense'
+  | 'expenseShare'
+  | 'recurringExpense'
   | 'settlement'
   | 'settings'
   id: string
@@ -272,6 +275,29 @@ export class BananaSplitDatabase extends Dexie {
       settlements: 'id, groupId, createdAt, updatedAt, deletedAt',
       syncOutbox: 'id, status, createdAt, entityType, entityId',
     })
+
+    this.version(7)
+      .stores({
+        activity: 'id, groupId, relatedId, createdAt, type, readAt',
+        budgets: 'id, groupId, updatedAt, deletedAt',
+        expenseShares: 'id, expenseId, memberId, [expenseId+memberId], createdAt',
+        expenses: 'id, groupId, budgetId, createdAt, updatedAt, deletedAt',
+        groupMembers: 'id, groupId, memberId, inviteStatus, [groupId+memberId], deletedAt',
+        groups: 'id, updatedAt, deletedAt, isActive, isDone',
+        members: 'id, email, updatedAt, deletedAt',
+        recurringExpenses: 'id, groupId, frequency, isPaused, deletedAt, updatedAt',
+        settings: 'id',
+        settlements: 'id, groupId, createdAt, updatedAt, deletedAt',
+        syncOutbox: 'id, status, createdAt, entityType, entityId',
+      })
+      .upgrade(async (transaction) => {
+        await transaction
+          .table<AppSettingsRecord, 'settings'>('settings')
+          .toCollection()
+          .modify((settings) => {
+            settings.accountAvatarUrl = settings.accountAvatarUrl ?? null
+          })
+      })
   }
 }
 

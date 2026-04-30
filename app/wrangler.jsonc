@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "bananasplit",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-04-29",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "app-db",
+      "database_id": "local-app-db",
+      "migrations_dir": "migrations"
+    }
+  ]
+}
